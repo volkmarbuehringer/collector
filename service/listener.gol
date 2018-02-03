@@ -1,0 +1,41 @@
+// Package service hat Funktionen für einen Rest-Service über Http
+package service
+
+import (
+	"fmt"
+	"log"
+	"net/http"
+	"os"
+	"strconv"
+	"time"
+
+	"github.com/husobee/vestigo"
+)
+
+var port int
+
+// Listen setzt den Server auf und verbindet mit dem Router
+func Listen(routes *vestigo.Router) {
+
+	srv := &http.Server{
+		ReadTimeout:  200 * time.Second,
+		WriteTimeout: 20000 * time.Second,
+		Addr:         fmt.Sprintf(":%d", port),
+		Handler:      routes,
+	}
+	log.Fatal(srv.ListenAndServe())
+}
+
+func init() {
+	t, ok := os.LookupEnv("PORT")
+	var err error
+	if ok {
+		port, err = strconv.Atoi(t)
+		if err != nil || port < 1000 {
+			panic(err)
+		}
+	} else {
+		port = 8080
+	}
+
+}
